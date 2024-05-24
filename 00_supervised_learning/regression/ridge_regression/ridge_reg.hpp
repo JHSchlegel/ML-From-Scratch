@@ -41,4 +41,4 @@ private:
     double lambda;
 };
 
-#endif //LinReg_H
+#endif //RidgeReg_H
