@@ -2,9 +2,10 @@
 #include <cmath>
 #include <limits>
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include <random>
+#include <algorithm> //for std::shuffle and std::iota
+
 
 /**
  * @brief Construct a new KMeans::KMeans object
@@ -13,7 +14,7 @@
  * @param max_iterations Maximum number of iterations for the algorithm
  * @param random_state  Seed for the random number generator 
  */
-KMeans::KMeans(int k, int max_iterations, int random_state = 42) : 
+KMeans::KMeans(int k, int max_iterations, int random_state) : 
     k(k), max_iterations(max_iterations), random_state(random_state), rng(random_state) {
 }
 
@@ -62,22 +63,23 @@ std::vector<std::vector<double>> KMeans::get_centroids() const {
  * @param data Observed data points
  * @return std::vector<int> Vector of cluster assignments
  */
-std::vector<int> assign_clusters(const std::vector<std::vector<double>>& data){
+std::vector<int> KMeans::assign_clusters(const std::vector<std::vector<double>>& data){
     std::vector<int> labels(data.size());
     //loop through all clusters and assign to cluster with minimal distance
-    for (size_t i = 0; i < data.size(), ++i) {
+    for (size_t i = 0; i < data.size(); ++i) {
         double min_distance = std::numeric_limits<double>::max();
         int closest_centroid = 0;
         for (int j=0; j <  k; ++j) {
             double distance = calculate_distance(data[j], centroids[j]);
             //update minimal distance and best cluster assignment
-            if distance < min_distance {
+            if (distance < min_distance) {
                 min_distance = distance;
                 closest_centroid = j;
             } 
         }
         labels[i] = closest_centroid;
     }
+    return labels;
 }
 
 
@@ -87,7 +89,7 @@ std::vector<int> assign_clusters(const std::vector<std::vector<double>>& data){
  * @param data Observed data points
  * @param labels Current cluster assignments
  */
-void update_centroids(const std::vector<std::vector<double>>& data, const std::vector<int>& labels) {
+void KMeans::update_centroids(const std::vector<std::vector<double>>& data, const std::vector<int>& labels) {
     //initialize counts and centroids with zeros:
     std::vector<int> counts(k, 0);
     centroids = std::vector<std::vector<double>>(k, std::vector<double>(data[0].size(), 0.0)); //k x num_features matrix
@@ -98,14 +100,24 @@ void update_centroids(const std::vector<std::vector<double>>& data, const std::v
         counts[cluster] += 1;
         //iterate over columns:
         for (size_t j = 0; j < data[i].size(); ++j){
-            centroids[cluster][j] += data[i][j]
+            centroids[cluster][j] += data[i][j];
         }
     }
 
     //calculate center of mass (i.e. mean) for every cluster:
     for (int i = 0; i < k; ++i) {
         for (size_t j = 0; j < centroids[i].size(); ++j){
-            centroids[i][j] /= counts[i]
+            if (counts[i] == 0) {
+                // If a cluster has zero points, handle this case by
+                // reinitializing this centroid to a random data point
+                int random_index = std::rand() % data.size();
+                centroids[i] = data[random_index];
+        } else {
+            //calculate center of mass (i.e. mean) for every cluster:
+            for (size_t j = 0; j < centroids[i].size(); ++j) {
+                centroids[i][j] /= counts[i];
+            }
+        }
         }
     }
 }
@@ -118,23 +130,29 @@ void update_centroids(const std::vector<std::vector<double>>& data, const std::v
 void KMeans::initialize_centroids(const std::vector<std::vector<double>>& data) {
     centroids.clear();
 
-    //ensure there are enough data points for k clusters:
-    if (data.size() < k) {
+    // Ensure data is not empty and each data point is not empty
+    if (data.empty() || data[0].empty()) {
+        std::cerr << "Error: Data is empty or data points are empty\n";
+        return;
+    }
+
+    // Ensure there are enough data points for k clusters
+    if (static_cast<int>(data.size()) < k) {
         std::cerr << "Error: Number of data points is less than the number of clusters\n";
         return;
     }
 
-    //Generate list of indices and suffle them:
+    // Generate list of indices and shuffle them
     std::vector<int> indices(data.size());
     std::iota(indices.begin(), indices.end(), 0);
     std::shuffle(indices.begin(), indices.end(), rng);
 
+    // Select the first k indices as centroids
     for (int i = 0; i < k; ++i) {
-        //randomly choose initial centroids from original data points
-        centroids.push_back(data[indices[i]])
+        centroids.push_back(data[indices[i]]);
     }
-    
 }
+
 
 
 /**
@@ -147,7 +165,7 @@ void KMeans::initialize_centroids(const std::vector<std::vector<double>>& data) 
 double KMeans::calculate_distance(const std::vector<double>& point1, const std::vector<double>& point2) {
     double distance = 0.0;
     //size_t because unsigned int
-    for (size_t i = 0; i< point1.size(), ++i) {
+    for (size_t i = 0; i< point1.size(); ++i) {
         //calculate the squared difference between each dimension
         distance += std::pow(point1[i] - point2[i], 2);
     }
