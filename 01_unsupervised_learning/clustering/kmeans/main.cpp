@@ -1,20 +1,47 @@
 #include <iostream>
 #include <vector>
-#include "kmeans.h"
+#include "kmeans.hpp"
+#include <random>
+
+
+std::vector<std::vector<double>> generate_data(
+        int true_num_clusters,
+        int points_per_cluster,
+        int num_dimensions,
+        int random_state
+    ) {
+    std::vector<std::vector<double>> data;
+    std::mt19937 gen(random_state);
+    std::uniform_real_distribution<double> cluster_center(0.0, 20.0);
+    std::normal_distribution<double> distribution(0.0, 1.0);
+
+    for (int i = 0; i < true_num_clusters; ++i) {
+        std::vector<double> center(num_dimensions);
+        for (int j = 0; j < num_dimensions; ++j) {
+            center[j] = cluster_center(gen);
+        }
+
+        for (int j = 0; j < points_per_cluster; ++j) {
+            std::vector<double> point(num_dimensions);
+            for (int k = 0; k < num_dimensions; ++k) {
+                point[k] = center[k] + distribution(gen);
+            }
+            data.push_back(point);
+        }
+    }
+
+    return data;
+}
 
 int main() {
-    // Example data: 2D points
-    std::vector<std::vector<double>> data = {
-        {1.0, 2.0},
-        {1.5, 1.8},
-        {5.0, 8.0},
-        {8.0, 8.0},
-        {1.0, 0.6},
-        {9.0, 11.0},
-        {8.0, 2.0},
-        {10.0, 2.0},
-        {9.0, 3.0}
-    };
+
+    // Generate some random data
+    int true_num_clusters = 3;
+    int points_per_cluster = 100;
+    int num_dimensions = 30;
+    int random_state = 42;
+
+    std::vector<std::vector<double>> data = generate_data(true_num_clusters, points_per_cluster, num_dimensions, random_state);
 
     // Number of clusters and maximum iterations
     int k = 3;
