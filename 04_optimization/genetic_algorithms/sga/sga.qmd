@@ -1,0 +1,264 @@
+---
+title: "Simple Genetic Algorithm"
+author: "Jan Schlegel"
+date: "2024-29-05"
+format:
+    html:
+        code_fold: true
+        echo: true
+        warning: false
+jupyter: 
+    julia-1.10
+---
+
+# Packages and Presets
+```{julia}
+using CSV
+using DataFrames
+using Plots
+using StatsBase
+using Random
+using Distributions
+using LinearAlgebra
+using Statistics
+```
+
+# Introduction
+
+In this notebook, we will implement a simple genetic algorithm to solve the travelling salesman problem for 532 cities in the United States. The goal is to find the shortest path that visits each city exactly once and returns to the starting city in the shortest distance possible. The `att532` data set contains the latitude and longitude of each city and can be found [here](https://github.com/mastqe/tsplib). The genetic algorithm will be implemented in Julia and will involve the following steps:
+
+
+# Simple Genetic Algorithm
+
+The genetic algorithm works as follows:
+
+1. **Initialization**: Create an initial population of candidate solutions.
+2. **Evaluation**: Evaluate the fitness of each candidate solution in the population.
+3. **Selection**: Select candidate solutions for reproduction based on their fitness.
+4. **Crossover**: Create new candidate solutions by combining the genetic material of selected parents.
+5. **Mutation**: Introduce random changes to the new candidate solutions.
+6. **Replacement**: Replace the old population with the new population.
+7. **Termination**: Check if the termination condition is met, otherwise go to step 2.
+
+
+# Implementation
+
+## Data Loading
+```{julia}
+# Read the CSV file
+coordinates_df = CSV.read("cities.csv", DataFrame; header=false, delim=';')
+rename!(coordinates_df, [:x, :y])  # Rename the columns
+
+# Convert DataFrame to a matrix (Nx2 array)
+CITIES = Matrix(coordinates_df)
+
+# Scatter plot
+scatter(CITIES[:, 1], CITIES[:, 2], markersize=3, color=:red, alpha=0.75)
+display(current())
+```
+
+## Global Variables and Helper Functions:
+```{julia}
+const NUM_CITIES = 532
+const POP_SIZE = 100
+```
+
+
+
+```{julia}
+function evaluate_tsp(method, coordinates::Matrix{Float64}, epochs::Int=1)
+    """
+    Evaluate sampling method on coordinates
+    
+    Args:
+        method (Function): sampling method
+        coordinates (Matrix{Float64}): city coordinates, shape Nx2
+        epochs (Int): number of epochs to run the sampling
+    """
+    Random.seed!(7)
+    N = size(coordinates, 1)
+    route = randperm(N)
+ 
+    start_time = time()
+    route, distances = method(coordinates, route, epochs)
+    execution_time = time() - start_time
+
+    if !all(sort(route) .== 1:N)
+        throw(ArgumentError("Returned route is not valid!"))
+    end
+
+    x, y = coordinates[route, 1], coordinates[route, 2]
+    
+    # Plotting
+    plot(1:length(distances), distances, marker=:circle, markersize=3, label="Distance")
+    plot!([0, length(distances)], [27686/1000, 27686/1000], color="green", label="Best known solution")
+    xlabel!("Epochs")
+    ylabel!("Distance")
+    grid!(:y)
+    
+    plot(x, y, alpha=0.5, color="blue", marker=:circle, markerfacecolor="red", markersize=3, linewidth=1, label="Route")
+    plot!([x[1], x[end]], [y[1], y[end]], alpha=0.5, color="blue", linewidth=1)
+    display(plot())
+end
+```
+
+
+## Structure for Traversed Cities
+```{julia}
+mutable struct Individual
+    cities::Vector{Int}
+    fitness::Float64
+end
+```
+
+
+
+## Initialization:
+```{julia}
+function initialize(population_size)
+    population = []
+    for _ in 1:population_size
+        push!(population, randperm(NUM_CITIES))
+    end
+    return population
+end
+```
+
+
+## Evaluation:
+```{julia}
+function get_individual_distance(individual, cities)
+    total_distance = 0.0
+    for i in 1:length(individual) - 1
+        if i == length(individual) - 1
+            # connect the last city back to the first city
+            total_distance += euclidean_distance(cities[individual[i], :], cities[individual[1], :])
+        else
+            total_distance += euclidean_distance(cities[individual[i], :], cities[individual[i + 1], :])
+        end
+    end
+    return total_distance
+end
+```
+
+
+```{julia}
+function get_fitness_probability(population)
+    """
+    Calculate the fitness probability for each individual in the population.
+
+    Args:
+        population (list): List of individuals in the population.
+    """
+    all_distances = []
+    for individual in population
+        push!(all_distances, get_individual_distance(individual))
+    end
+    # max distance in population
+    max_cost = max(all_distances)
+    # use .- for broadcasting; 
+    # use max-distance to avoid numerical issues that would arise
+    # when using 1/distance instead
+    fitness = max_cost .- all_distances
+    # divide by normalizing probability to crate valid probability distribution
+    fitness_probs = fitness ./ sum(fitness)
+
+    # check whether it is a valid probability distribution
+    @assert abs(sum(fitness_probs) - 1.0) < 1e-9
+
+    return fitness_prob
+
+end
+```
+
+
+## Selection:
+```{julia}
+function select_individual(population, fitness_probs)
+    """
+    Select an individual from the population based on the fitness probabilities.
+
+    Args:
+        population (list): List of individuals in the population.
+        fitness_probs (list): List of fitness probabilities for each individual.
+    """
+    # Create a categorical distribution with the given fitness probabilities
+    dist = Categorical(fitness_probs)
+    # Sample an index from the distribution
+    selected_index = rand(dist)
+    return population[selected_index]
+end
+```
+
+## Crossover:
+
+```{julia}
+function crossover(parent1, parent2)
+    """
+    Perform crossover between two parents to create a new child.
+
+    Args:
+        parent1 (list): First parent.
+        parent2 (list): Second parent.
+    """
+    # Choose a random crossover point
+    crossover_point = rand(1:length(parent1))
+    child = zeros(Int, length(parent1))
+    child[1:crossover_point] .= parent1[1:crossover_point]
+    child[crossover_point + 1:end] .= parent2[crossover_point + 1:end]
+    return child
+end
+```
+
+
+## Mutation:
+
+
+
+
+# SGA for TSP
+Putting everything together:
+```{julia}
+population = initialize(POP_SIZE)
+#println(population)
+println("Length of population: ", length(population))
+print("First individual: ", population[1])
+```
+
+
+Visualizing the first individual:
+```{julia}
+x = CITIES[population[1], 1]
+y = CITIES[population[1], 2]
+
+# Plot the cities
+scatter(x, y, alpha=0.5, color="red")
+
+# Plot the route by connecting the cities in the order specified by the individual
+scatter(x, y, markersize=5, color=:red, alpha=0.75, label="Cities")
+
+# Add lines connecting the cities to show the route
+plot!(x, y, line=:solid, color=:blue, linewidth=2, label="Route", alpha=0.5)
+
+# Close the loop of the route by connecting the last city back to the first city
+plot!([x[end], x[1]], [y[end], y[1]], line=:solid, color=:blue, linewidth=2, alpha=0.5, label="")
+
+# Display the plot
+display(current())
+```
+
+
+```{julia}
+#| label: fig-parametric
+#| fig-cap: "Parametric Plots"
+
+
+
+plot(sin, 
+     x->sin(2x), 
+     0, 
+     2π, 
+     leg=false, 
+     fill=(0,:lavender))
+```
+
