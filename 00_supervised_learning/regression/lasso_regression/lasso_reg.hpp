@@ -9,7 +9,7 @@
  * @brief LassoReg class for lasso regression
  * 
  */
-class LassoReg {
+class LassoReg {    
 public:
     LassoReg(
         double lambda = 1.0, 
@@ -41,12 +41,17 @@ public:
 private:
     // Coefficients of the linear regression model
     Eigen::VectorXd coefficients;
+    double intercept;
+    Eigen::VectorXd X_mean;
+    Eigen::VectorXd X_std;
+    double y_mean;
     // Regularization parameter
     double lambda;
     // Maximum number of iterations for coordinate descent
     int max_iter;
     // Tolerance for stopping criterion
     double tol;
+
 
     /**
      * @brief Soft thresholding operator
