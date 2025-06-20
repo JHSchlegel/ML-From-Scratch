@@ -1,0 +1,8 @@
+BasedOnStyle: Google
+ColumnLimit: 79
+IndentWidth: 4
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: false
+BreakConstructorInitializers: BeforeColon
+AlignAfterOpenBracket: Align
+BinPackParameters: false
