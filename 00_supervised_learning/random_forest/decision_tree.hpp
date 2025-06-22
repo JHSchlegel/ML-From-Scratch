@@ -123,17 +123,53 @@ private:
      */
     double calculate_mse(const std::vector<DataPoint>& data);
 
+    /**
+     * @brief Split the data into two subsets based on a feature and threshold.
+     * 
+     * @param data Data points to split.
+     * @param feature_index Index of the feature to split on.
+     * @param threshold Threshold value for the split.
+     * @return std::pair<std::vector<DataPoint>, std::vector<DataPoint>> 
+     *          Two subsets of data points (left and right).
+     */
     std::pair<std::vector<DataPoint>, std::vector<DataPoint>> split_data(
         const std::vector<DataPoint>& data,
         int feature_index,
         double threshold
     )
 
+    /**
+     * @brief Calculate the prediction for a set of data points.
+     * 
+     * @param data Data points to calculate the prediction for.
+     * @return double Predicted value based on the data.
+     */
     double calculate_prediction(
         const std::vector<DataPoint>& data
     );
+
+    /**
+     * @brief Perform majority vote for classification tasks.
+     * 
+     * @param data Data points to perform majority vote on.
+     * @return int Predicted class label.
+     */
     int majority_vote(const std::vector<DataPoint>& data);
+
+    /**
+     * @brief Calculate the mean value for regression tasks.
+     * 
+     * @param data Data points to calculate the mean for.
+     * @return double Mean value of the target variable.
+     */
     double calculate_mean(const std::vector<DataPoint>& data);
+
+    /**
+     * @brief Get a random subset of feature indices for splitting.
+     * 
+     * @param total_features Total number of features available.
+     * @return std::vector<int> Randomly selected feature indices.
+     */
     std::vector<int> get_random_feature_indices(int total_features);
 }
 
