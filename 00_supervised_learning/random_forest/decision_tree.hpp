@@ -37,7 +37,7 @@ struct Node {
     double predicted_value = 0.0;      // Predicted value if leaf node
     std::unique_ptr<Node> left;        // Left child (if feature < threshold)
     std::unique_ptr<Node> right;       // Right child (if feature >= threshold)
-    bool is_leaf = false;
+    bool is_leaf = false;              // True if this node is a leaf node
 
     Node() = default;
 }
