@@ -12,7 +12,9 @@ This repository contains fundamental machine learning algorithms built without r
 - **Linear Regression** (C++)
   - Ordinary Least Squares
   - Ridge Regression
+  - Lasso Regression
 - **K-Means Clustering** (C++)
+- **Simulated Annealing** (Julia)
 
 ### Work in Progress
 - **Random Forest** (C++)
