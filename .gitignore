@@ -36,3 +36,13 @@ build/
 CMakeCache.txt
 CMakeFiles/
 CMakeLists.txt.user
+
+# --- mlfs (Rust + Python) ---
+target/
+.venv/
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+*.so
+# Cargo.lock is intentionally committed for mlfs: the PyO3 / rust-numpy /
+# ndarray / linfa-linalg versions must stay aligned, so we pin them.
