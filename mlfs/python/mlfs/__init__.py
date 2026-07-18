@@ -41,7 +41,7 @@ from ._mlfs import SVC
 from ._mlfs import MLPClassifier, MLPRegressor
 
 # Dimensionality reduction
-from ._mlfs import PCA
+from ._mlfs import PCA, TSNE
 
 __all__ = [
     "LinearRegression",
@@ -62,4 +62,5 @@ __all__ = [
     "MLPClassifier",
     "MLPRegressor",
     "PCA",
+    "TSNE",
 ]

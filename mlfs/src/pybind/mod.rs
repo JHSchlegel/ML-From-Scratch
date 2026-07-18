@@ -94,5 +94,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<nn::MLPRegressor>()?;
 
     m.add_class::<decomposition::PCA>()?;
+    m.add_class::<decomposition::TSNE>()?;
     Ok(())
 }
