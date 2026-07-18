@@ -13,9 +13,10 @@ passed and returned as floats.
 """
 
 from ._mlfs import __version__  # noqa: F401
-from ._mlfs import LinearRegression, Ridge
+from ._mlfs import LinearRegression, Ridge, Lasso
 
 __all__ = [
     "LinearRegression",
     "Ridge",
+    "Lasso",
 ]
