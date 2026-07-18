@@ -16,9 +16,14 @@ from ._mlfs import __version__  # noqa: F401
 # Linear models
 from ._mlfs import LinearRegression, Ridge, Lasso, LogisticRegression
 
+# Neighbours
+from ._mlfs import KNeighborsClassifier, KNeighborsRegressor
+
 __all__ = [
     "LinearRegression",
     "Ridge",
     "Lasso",
     "LogisticRegression",
+    "KNeighborsClassifier",
+    "KNeighborsRegressor",
 ]

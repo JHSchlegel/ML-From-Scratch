@@ -8,6 +8,7 @@ use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
 pub mod linear;
+pub mod neighbors;
 
 /// Convert a crate error into an appropriate Python exception.
 pub(crate) fn to_py_err(e: MlError) -> PyErr {
@@ -50,5 +51,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<linear::Ridge>()?;
     m.add_class::<linear::Lasso>()?;
     m.add_class::<linear::LogisticRegression>()?;
+
+    m.add_class::<neighbors::KNeighborsClassifier>()?;
+    m.add_class::<neighbors::KNeighborsRegressor>()?;
     Ok(())
 }

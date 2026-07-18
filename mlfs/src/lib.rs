@@ -10,6 +10,7 @@
 pub mod common;
 pub mod error;
 pub mod linear;
+pub mod neighbors;
 
 pub use common::{Estimator, Predictor, Transformer};
 pub use error::{MlError, Result};
