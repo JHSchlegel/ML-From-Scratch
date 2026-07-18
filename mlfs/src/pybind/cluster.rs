@@ -1,7 +1,7 @@
 //! Python wrappers for clustering algorithms.
 
 use super::to_py_err;
-use crate::cluster::KMeans as RustKMeans;
+use crate::cluster::{GaussianMixture as RustGmm, KMeans as RustKMeans};
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2};
 use pyo3::prelude::*;
 
@@ -71,5 +71,79 @@ impl KMeans {
     }
     fn __repr__(&self) -> String {
         "KMeans()".into()
+    }
+}
+
+/// Gaussian Mixture Model.
+#[pyclass(name = "GaussianMixture", module = "mlfs")]
+pub struct GaussianMixture {
+    inner: RustGmm,
+}
+
+#[pymethods]
+impl GaussianMixture {
+    #[new]
+    #[pyo3(signature = (
+        n_components = 1,
+        max_iter = 100,
+        tol = 1e-3,
+        reg_covar = 1e-6,
+        random_state = 0
+    ))]
+    fn new(
+        n_components: usize,
+        max_iter: usize,
+        tol: f64,
+        reg_covar: f64,
+        random_state: u64,
+    ) -> PyResult<Self> {
+        Ok(Self {
+            inner: RustGmm::new(n_components, max_iter, tol, reg_covar, random_state)
+                .map_err(to_py_err)?,
+        })
+    }
+
+    fn fit<'py>(
+        mut slf: PyRefMut<'py, Self>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<PyRefMut<'py, Self>> {
+        slf.inner.fit(x.as_array()).map_err(to_py_err)?;
+        Ok(slf)
+    }
+
+    fn predict<'py>(
+        &self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    fn fit_predict<'py>(
+        &mut self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .fit_predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    #[getter]
+    fn means_<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyArray2<f64>>> {
+        self.inner.means().map(|c| c.to_owned().into_pyarray(py))
+    }
+    #[getter]
+    fn weights_<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyArray1<f64>>> {
+        self.inner.weights().map(|c| c.to_owned().into_pyarray(py))
+    }
+    fn __repr__(&self) -> String {
+        "GaussianMixture()".into()
     }
 }

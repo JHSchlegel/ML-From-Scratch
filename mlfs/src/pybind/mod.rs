@@ -98,5 +98,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<decomposition::TSNE>()?;
 
     m.add_class::<cluster::KMeans>()?;
+    m.add_class::<cluster::GaussianMixture>()?;
     Ok(())
 }

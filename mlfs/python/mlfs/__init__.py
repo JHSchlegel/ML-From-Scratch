@@ -44,7 +44,7 @@ from ._mlfs import MLPClassifier, MLPRegressor
 from ._mlfs import PCA, TSNE
 
 # Clustering
-from ._mlfs import KMeans
+from ._mlfs import KMeans, GaussianMixture
 
 __all__ = [
     "LinearRegression",
@@ -67,4 +67,5 @@ __all__ = [
     "PCA",
     "TSNE",
     "KMeans",
+    "GaussianMixture",
 ]
