@@ -49,5 +49,6 @@ pub(crate) fn accuracy(pred: &Array1<f64>, y: ArrayView1<f64>) -> f64 {
 /// Register every `#[pyclass]` on the top-level module.
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<linear::LinearRegression>()?;
+    m.add_class::<linear::Ridge>()?;
     Ok(())
 }
