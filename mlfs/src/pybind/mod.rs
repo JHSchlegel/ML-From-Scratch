@@ -8,6 +8,7 @@ use ndarray::{Array1, ArrayView1};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
+pub mod ensemble;
 pub mod linear;
 pub mod naive_bayes;
 pub mod neighbors;
@@ -77,5 +78,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<tree::DecisionTreeClassifier>()?;
     m.add_class::<tree::DecisionTreeRegressor>()?;
+
+    m.add_class::<ensemble::RandomForestClassifier>()?;
+    m.add_class::<ensemble::RandomForestRegressor>()?;
     Ok(())
 }

@@ -8,6 +8,7 @@
 //! Rust users depend on the library crate directly; Python users `import mlfs`.
 
 pub mod common;
+pub mod ensemble;
 pub mod error;
 pub mod linear;
 pub mod naive_bayes;

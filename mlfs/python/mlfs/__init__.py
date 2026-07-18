@@ -25,6 +25,9 @@ from ._mlfs import GaussianNB
 # Trees
 from ._mlfs import DecisionTreeClassifier, DecisionTreeRegressor
 
+# Ensembles
+from ._mlfs import RandomForestClassifier, RandomForestRegressor
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -35,4 +38,6 @@ __all__ = [
     "GaussianNB",
     "DecisionTreeClassifier",
     "DecisionTreeRegressor",
+    "RandomForestClassifier",
+    "RandomForestRegressor",
 ]
