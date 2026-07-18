@@ -1,8 +1,12 @@
 //! Python wrappers for clustering algorithms.
 
 use super::to_py_err;
-use crate::cluster::{DBSCAN as RustDbscan, GaussianMixture as RustGmm, KMeans as RustKMeans};
+use crate::cluster::{
+    AgglomerativeClustering as RustAgg, GaussianMixture as RustGmm, KMeans as RustKMeans, Linkage,
+    DBSCAN as RustDbscan,
+};
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 /// K-Means clustering.
@@ -192,5 +196,62 @@ impl DBSCAN {
     }
     fn __repr__(&self) -> String {
         "DBSCAN()".into()
+    }
+}
+
+/// Agglomerative (hierarchical) clustering.
+#[pyclass(name = "AgglomerativeClustering", module = "mlfs")]
+pub struct AgglomerativeClustering {
+    inner: RustAgg,
+}
+
+#[pymethods]
+impl AgglomerativeClustering {
+    #[new]
+    #[pyo3(signature = (n_clusters = 2, linkage = "average".to_string()))]
+    fn new(n_clusters: usize, linkage: String) -> PyResult<Self> {
+        let link = match linkage.as_str() {
+            "single" => Linkage::Single,
+            "complete" => Linkage::Complete,
+            "average" => Linkage::Average,
+            other => {
+                return Err(PyValueError::new_err(format!(
+                    "unknown linkage '{other}', expected single/complete/average"
+                )))
+            }
+        };
+        Ok(Self {
+            inner: RustAgg::new(n_clusters, link).map_err(to_py_err)?,
+        })
+    }
+
+    fn fit<'py>(
+        mut slf: PyRefMut<'py, Self>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<PyRefMut<'py, Self>> {
+        slf.inner.fit(x.as_array()).map_err(to_py_err)?;
+        Ok(slf)
+    }
+
+    fn fit_predict<'py>(
+        &mut self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .fit_predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    #[getter]
+    fn labels_<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyArray1<f64>>> {
+        self.inner
+            .labels()
+            .map(|l| l.mapv(|v| v as f64).into_pyarray(py))
+    }
+    fn __repr__(&self) -> String {
+        "AgglomerativeClustering()".into()
     }
 }
