@@ -9,6 +9,7 @@
 
 pub mod common;
 pub mod error;
+pub mod linear;
 
 pub use common::{Estimator, Predictor, Transformer};
 pub use error::{MlError, Result};

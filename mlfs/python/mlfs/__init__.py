@@ -13,5 +13,8 @@ passed and returned as floats.
 """
 
 from ._mlfs import __version__  # noqa: F401
+from ._mlfs import LinearRegression
 
-__all__ = ["__version__"]
+__all__ = [
+    "LinearRegression",
+]

@@ -7,6 +7,8 @@ use ndarray::{Array1, ArrayView1};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
+pub mod linear;
+
 /// Convert a crate error into an appropriate Python exception.
 pub(crate) fn to_py_err(e: MlError) -> PyErr {
     match e {
@@ -45,6 +47,7 @@ pub(crate) fn accuracy(pred: &Array1<f64>, y: ArrayView1<f64>) -> f64 {
 }
 
 /// Register every `#[pyclass]` on the top-level module.
-pub fn register(_m: &Bound<'_, PyModule>) -> PyResult<()> {
+pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<linear::LinearRegression>()?;
     Ok(())
 }
