@@ -34,6 +34,9 @@ from ._mlfs import (
     AdaBoostClassifier,
 )
 
+# SVM
+from ._mlfs import SVC
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -49,4 +52,5 @@ __all__ = [
     "GradientBoostingClassifier",
     "GradientBoostingRegressor",
     "AdaBoostClassifier",
+    "SVC",
 ]

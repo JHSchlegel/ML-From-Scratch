@@ -12,6 +12,7 @@ pub mod ensemble;
 pub mod linear;
 pub mod naive_bayes;
 pub mod neighbors;
+pub mod svm;
 pub mod tree;
 
 /// Convert a crate error into an appropriate Python exception.
@@ -84,5 +85,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ensemble::GradientBoostingClassifier>()?;
     m.add_class::<ensemble::GradientBoostingRegressor>()?;
     m.add_class::<ensemble::AdaBoostClassifier>()?;
+
+    m.add_class::<svm::SVC>()?;
     Ok(())
 }
