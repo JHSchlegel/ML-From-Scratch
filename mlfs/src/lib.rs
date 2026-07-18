@@ -8,6 +8,7 @@
 //! Rust users depend on the library crate directly; Python users `import mlfs`.
 
 pub mod common;
+pub mod decomposition;
 pub mod ensemble;
 pub mod error;
 pub mod linear;

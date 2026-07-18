@@ -8,6 +8,7 @@ use ndarray::{Array1, ArrayView1};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
+pub mod decomposition;
 pub mod ensemble;
 pub mod linear;
 pub mod naive_bayes;
@@ -91,5 +92,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<nn::MLPClassifier>()?;
     m.add_class::<nn::MLPRegressor>()?;
+
+    m.add_class::<decomposition::PCA>()?;
     Ok(())
 }
