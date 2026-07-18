@@ -15,6 +15,7 @@ pub mod linear;
 pub mod naive_bayes;
 pub mod neighbors;
 pub mod nn;
+pub mod preprocessing;
 pub mod svm;
 pub mod tree;
 
@@ -101,5 +102,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<cluster::GaussianMixture>()?;
     m.add_class::<cluster::DBSCAN>()?;
     m.add_class::<cluster::AgglomerativeClustering>()?;
+
+    m.add_class::<preprocessing::StandardScaler>()?;
+    m.add_function(wrap_pyfunction!(preprocessing::train_test_split, m)?)?;
     Ok(())
 }

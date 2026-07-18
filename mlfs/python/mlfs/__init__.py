@@ -46,6 +46,9 @@ from ._mlfs import PCA, TSNE
 # Clustering
 from ._mlfs import KMeans, GaussianMixture, DBSCAN, AgglomerativeClustering
 
+# Preprocessing / utilities
+from ._mlfs import StandardScaler, train_test_split
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -70,4 +73,6 @@ __all__ = [
     "GaussianMixture",
     "DBSCAN",
     "AgglomerativeClustering",
+    "StandardScaler",
+    "train_test_split",
 ]
