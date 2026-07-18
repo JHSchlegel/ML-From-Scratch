@@ -7,6 +7,7 @@
 //!
 //! Rust users depend on the library crate directly; Python users `import mlfs`.
 
+pub mod cluster;
 pub mod common;
 pub mod decomposition;
 pub mod ensemble;

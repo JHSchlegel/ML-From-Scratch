@@ -8,6 +8,7 @@ use ndarray::{Array1, ArrayView1};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
+pub mod cluster;
 pub mod decomposition;
 pub mod ensemble;
 pub mod linear;
@@ -95,5 +96,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<decomposition::PCA>()?;
     m.add_class::<decomposition::TSNE>()?;
+
+    m.add_class::<cluster::KMeans>()?;
     Ok(())
 }

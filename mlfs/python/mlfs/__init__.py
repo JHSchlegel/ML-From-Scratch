@@ -43,6 +43,9 @@ from ._mlfs import MLPClassifier, MLPRegressor
 # Dimensionality reduction
 from ._mlfs import PCA, TSNE
 
+# Clustering
+from ._mlfs import KMeans
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -63,4 +66,5 @@ __all__ = [
     "MLPRegressor",
     "PCA",
     "TSNE",
+    "KMeans",
 ]
