@@ -1,69 +1,53 @@
 # Machine Learning From Scratch
 
-A collection of machine learning algorithms implemented from scratch in various programming languages.
+A modular library of the most important machine-learning algorithms, implemented
+**from scratch in Rust** with a **Python** interface.
 
 ## Overview
 
-This repository contains fundamental machine learning algorithms built without relying on high-level ML libraries, providing educational implementations that demonstrate core concepts and mathematical foundations.
+Everything lives in the [`mlfs/`](mlfs/) crate: ~18 classic ML algorithms built
+without any ML libraries, exposed to Python (via PyO3 + maturin) behind a
+scikit-learn-style API. "From scratch" means the only borrowed primitives are
+`ndarray` for tensors and `linfa-linalg` (pure Rust, no LAPACK) for a handful of
+matrix decompositions — every model's fitting logic is written by hand.
 
-## Current Implementation Status
+| Category | Algorithms |
+| --- | --- |
+| Linear models | LinearRegression, Ridge, Lasso, LogisticRegression |
+| Neighbours / Bayes | KNeighbors{Classifier,Regressor}, GaussianNB |
+| Trees & ensembles | DecisionTree{Classifier,Regressor}, RandomForest{…}, GradientBoosting{…}, AdaBoost |
+| Kernel & neural | SVC (SMO; linear/RBF), MLP{Classifier,Regressor} |
+| Unsupervised | KMeans, GaussianMixture, DBSCAN, AgglomerativeClustering |
+| Dimensionality reduction | PCA, t-SNE |
+| Utilities | StandardScaler, train_test_split, metrics |
 
-### Completed
-- **Linear Regression** (C++)
-  - Ordinary Least Squares
-  - Ridge Regression
-  - Lasso Regression
-- **K-Means Clustering** (C++)
-- **Simulated Annealing** (Julia)
+## Quick start
 
-### Work in Progress
-- **Random Forest** (C++)
-- **Gradient Boosting** (Rust)
+```python
+import numpy as np
+from mlfs import RandomForestClassifier, StandardScaler, train_test_split
 
-## Structure
-
-```
-00_supervised_learning/
-├── linear_regression/
-│   ├── ordinary_least_squares/
-│   └── ridge_regression/
-└── random_forest/
-
-01_unsupervised_learning/
-└── clustering/
-    └── kmeans/
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+scaler = StandardScaler().fit(X_train)
+clf = RandomForestClassifier(n_estimators=100).fit(scaler.transform(X_train), y_train)
+print(clf.score(scaler.transform(X_test), y_test))
 ```
 
-## Building with CMake
+See [`mlfs/examples/showcase.ipynb`](mlfs/examples/showcase.ipynb) for a full,
+plotted tour of every algorithm.
 
-Each algorithm includes its own CMakeLists.txt. To build:
+## Building
 
 ```bash
-cd <algorithm_directory>
-mkdir build
-cd build
-cmake ..
-make
+cd mlfs
+cargo test                     # run the Rust unit tests
+python3 -m venv ../.venv && source ../.venv/bin/activate
+pip install maturin numpy
+maturin develop --release      # build + install the `mlfs` Python package
+python -c "import mlfs; print(mlfs.__version__)"
 ```
 
-Example:
-```bash
-cd 00_supervised_learning/linear_regression/ordinary_least_squares
-mkdir build
-cd build
-cmake ..
-make
-./linear_regression
-```
-
-## Code Formatting
-
-This project uses clang-format for consistent C++ code style. To format code:
-
-```bash
-# Format a single file
-clang-format -i <filename>
-
-# Format all C++ files recursively
-find . -name "*.cpp" -o -name "*.hpp" -o -name "*.h" | xargs clang-format -i
-```
+For the notebook, also install the extras: `pip install matplotlib scikit-learn
+pandas jupyter` (scikit-learn is used only to load toy datasets and sanity-check
+results — never inside the library). See [`mlfs/README.md`](mlfs/README.md) for
+the full module layout.
