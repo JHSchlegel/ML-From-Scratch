@@ -37,6 +37,9 @@ from ._mlfs import (
 # SVM
 from ._mlfs import SVC
 
+# Neural networks
+from ._mlfs import MLPClassifier, MLPRegressor
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -53,4 +56,6 @@ __all__ = [
     "GradientBoostingRegressor",
     "AdaBoostClassifier",
     "SVC",
+    "MLPClassifier",
+    "MLPRegressor",
 ]

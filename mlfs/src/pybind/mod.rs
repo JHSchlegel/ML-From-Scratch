@@ -12,6 +12,7 @@ pub mod ensemble;
 pub mod linear;
 pub mod naive_bayes;
 pub mod neighbors;
+pub mod nn;
 pub mod svm;
 pub mod tree;
 
@@ -87,5 +88,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ensemble::AdaBoostClassifier>()?;
 
     m.add_class::<svm::SVC>()?;
+
+    m.add_class::<nn::MLPClassifier>()?;
+    m.add_class::<nn::MLPRegressor>()?;
     Ok(())
 }
