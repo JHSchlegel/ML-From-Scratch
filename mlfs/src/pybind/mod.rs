@@ -20,7 +20,6 @@ pub(crate) fn to_py_err(e: MlError) -> PyErr {
 }
 
 /// R^2 score of predictions against targets (regression `.score`).
-#[allow(dead_code)]
 pub(crate) fn r2(pred: &Array1<f64>, y: ArrayView1<f64>) -> f64 {
     let mean = y.mean().unwrap_or(0.0);
     let ss_res: f64 = y.iter().zip(pred.iter()).map(|(t, p)| (t - p).powi(2)).sum();
@@ -33,7 +32,6 @@ pub(crate) fn r2(pred: &Array1<f64>, y: ArrayView1<f64>) -> f64 {
 }
 
 /// Classification accuracy (classifier `.score`).
-#[allow(dead_code)]
 pub(crate) fn accuracy(pred: &Array1<f64>, y: ArrayView1<f64>) -> f64 {
     if y.is_empty() {
         return 0.0;
@@ -51,5 +49,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<linear::LinearRegression>()?;
     m.add_class::<linear::Ridge>()?;
     m.add_class::<linear::Lasso>()?;
+    m.add_class::<linear::LogisticRegression>()?;
     Ok(())
 }

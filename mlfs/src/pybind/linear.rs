@@ -1,11 +1,12 @@
 //! Python wrappers for linear models.
 
-use super::{r2, to_py_err};
+use super::{accuracy, r2, to_py_err};
 use crate::common::traits::{Estimator, Predictor};
 use crate::linear::{
-    Lasso as RustLasso, LinearRegression as RustLinearRegression, Ridge as RustRidge,
+    Lasso as RustLasso, LinearRegression as RustLinearRegression,
+    LogisticRegression as RustLogisticRegression, Ridge as RustRidge,
 };
-use numpy::{IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArray2};
+use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray1, PyReadonlyArray2};
 use pyo3::prelude::*;
 
 /// Ordinary least squares linear regression.
@@ -176,5 +177,72 @@ impl Lasso {
     }
     fn __repr__(&self) -> String {
         "Lasso()".into()
+    }
+}
+
+/// Multinomial logistic regression.
+#[pyclass(name = "LogisticRegression", module = "mlfs")]
+pub struct LogisticRegression {
+    inner: RustLogisticRegression,
+}
+
+#[pymethods]
+impl LogisticRegression {
+    #[new]
+    #[pyo3(signature = (lr = 0.1, max_iter = 500, l2 = 0.0))]
+    fn new(lr: f64, max_iter: usize, l2: f64) -> PyResult<Self> {
+        Ok(Self {
+            inner: RustLogisticRegression::new(lr, max_iter, l2).map_err(to_py_err)?,
+        })
+    }
+
+    fn fit<'py>(
+        mut slf: PyRefMut<'py, Self>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray1<'py, f64>,
+    ) -> PyResult<PyRefMut<'py, Self>> {
+        slf.inner
+            .fit(x.as_array(), y.as_array())
+            .map_err(to_py_err)?;
+        Ok(slf)
+    }
+
+    fn predict<'py>(
+        &self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    fn predict_proba<'py>(
+        &self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray2<f64>>> {
+        Ok(self
+            .inner
+            .predict_proba(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    fn score(&self, x: PyReadonlyArray2<'_, f64>, y: PyReadonlyArray1<'_, f64>) -> PyResult<f64> {
+        let pred = self.inner.predict(x.as_array()).map_err(to_py_err)?;
+        Ok(accuracy(&pred, y.as_array()))
+    }
+
+    #[getter]
+    fn classes_<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyArray1<f64>>> {
+        self.inner
+            .classes()
+            .map(|c| ndarray::Array1::from(c.to_vec()).into_pyarray(py))
+    }
+    fn __repr__(&self) -> String {
+        "LogisticRegression()".into()
     }
 }
