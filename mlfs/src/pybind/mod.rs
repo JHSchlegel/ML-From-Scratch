@@ -99,5 +99,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<cluster::KMeans>()?;
     m.add_class::<cluster::GaussianMixture>()?;
+    m.add_class::<cluster::DBSCAN>()?;
     Ok(())
 }

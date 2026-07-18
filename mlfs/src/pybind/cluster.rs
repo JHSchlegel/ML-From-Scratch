@@ -1,7 +1,7 @@
 //! Python wrappers for clustering algorithms.
 
 use super::to_py_err;
-use crate::cluster::{GaussianMixture as RustGmm, KMeans as RustKMeans};
+use crate::cluster::{DBSCAN as RustDbscan, GaussianMixture as RustGmm, KMeans as RustKMeans};
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2};
 use pyo3::prelude::*;
 
@@ -145,5 +145,52 @@ impl GaussianMixture {
     }
     fn __repr__(&self) -> String {
         "GaussianMixture()".into()
+    }
+}
+
+/// DBSCAN density-based clustering.
+#[pyclass(name = "DBSCAN", module = "mlfs")]
+pub struct DBSCAN {
+    inner: RustDbscan,
+}
+
+#[pymethods]
+impl DBSCAN {
+    #[new]
+    #[pyo3(signature = (eps = 0.5, min_samples = 5))]
+    fn new(eps: f64, min_samples: usize) -> PyResult<Self> {
+        Ok(Self {
+            inner: RustDbscan::new(eps, min_samples).map_err(to_py_err)?,
+        })
+    }
+
+    fn fit<'py>(
+        mut slf: PyRefMut<'py, Self>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<PyRefMut<'py, Self>> {
+        slf.inner.fit(x.as_array()).map_err(to_py_err)?;
+        Ok(slf)
+    }
+
+    fn fit_predict<'py>(
+        &mut self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .fit_predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    #[getter]
+    fn labels_<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyArray1<f64>>> {
+        self.inner
+            .labels()
+            .map(|l| l.mapv(|v| v as f64).into_pyarray(py))
+    }
+    fn __repr__(&self) -> String {
+        "DBSCAN()".into()
     }
 }
