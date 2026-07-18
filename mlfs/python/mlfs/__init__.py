@@ -22,6 +22,9 @@ from ._mlfs import KNeighborsClassifier, KNeighborsRegressor
 # Naive Bayes
 from ._mlfs import GaussianNB
 
+# Trees
+from ._mlfs import DecisionTreeClassifier, DecisionTreeRegressor
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -30,4 +33,6 @@ __all__ = [
     "KNeighborsClassifier",
     "KNeighborsRegressor",
     "GaussianNB",
+    "DecisionTreeClassifier",
+    "DecisionTreeRegressor",
 ]
