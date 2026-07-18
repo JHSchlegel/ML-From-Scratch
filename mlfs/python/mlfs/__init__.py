@@ -19,6 +19,9 @@ from ._mlfs import LinearRegression, Ridge, Lasso, LogisticRegression
 # Neighbours
 from ._mlfs import KNeighborsClassifier, KNeighborsRegressor
 
+# Naive Bayes
+from ._mlfs import GaussianNB
+
 __all__ = [
     "LinearRegression",
     "Ridge",
@@ -26,4 +29,5 @@ __all__ = [
     "LogisticRegression",
     "KNeighborsClassifier",
     "KNeighborsRegressor",
+    "GaussianNB",
 ]

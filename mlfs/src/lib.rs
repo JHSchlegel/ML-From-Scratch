@@ -10,6 +10,7 @@
 pub mod common;
 pub mod error;
 pub mod linear;
+pub mod naive_bayes;
 pub mod neighbors;
 
 pub use common::{Estimator, Predictor, Transformer};

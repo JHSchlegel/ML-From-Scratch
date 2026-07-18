@@ -8,6 +8,7 @@ use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
 pub mod linear;
+pub mod naive_bayes;
 pub mod neighbors;
 
 /// Convert a crate error into an appropriate Python exception.
@@ -54,5 +55,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<neighbors::KNeighborsClassifier>()?;
     m.add_class::<neighbors::KNeighborsRegressor>()?;
+
+    m.add_class::<naive_bayes::GaussianNB>()?;
     Ok(())
 }
