@@ -31,6 +31,7 @@ from ._mlfs import (
     RandomForestRegressor,
     GradientBoostingClassifier,
     GradientBoostingRegressor,
+    AdaBoostClassifier,
 )
 
 __all__ = [
@@ -47,4 +48,5 @@ __all__ = [
     "RandomForestRegressor",
     "GradientBoostingClassifier",
     "GradientBoostingRegressor",
+    "AdaBoostClassifier",
 ]

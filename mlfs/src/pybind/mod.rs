@@ -83,5 +83,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ensemble::RandomForestRegressor>()?;
     m.add_class::<ensemble::GradientBoostingClassifier>()?;
     m.add_class::<ensemble::GradientBoostingRegressor>()?;
+    m.add_class::<ensemble::AdaBoostClassifier>()?;
     Ok(())
 }

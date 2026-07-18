@@ -3,8 +3,9 @@
 use super::{accuracy, make_tree_params, r2, to_py_err};
 use crate::common::traits::{Estimator, Predictor};
 use crate::ensemble::{
-    GradientBoostingClassifier as RustGbc, GradientBoostingRegressor as RustGbr,
-    RandomForestClassifier as RustRfc, RandomForestRegressor as RustRfr,
+    AdaBoostClassifier as RustAda, GradientBoostingClassifier as RustGbc,
+    GradientBoostingRegressor as RustGbr, RandomForestClassifier as RustRfc,
+    RandomForestRegressor as RustRfr,
 };
 use numpy::{IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArray2};
 use pyo3::prelude::*;
@@ -260,5 +261,59 @@ impl GradientBoostingRegressor {
     }
     fn __repr__(&self) -> String {
         "GradientBoostingRegressor()".into()
+    }
+}
+
+/// AdaBoost classifier (SAMME).
+#[pyclass(name = "AdaBoostClassifier", module = "mlfs")]
+pub struct AdaBoostClassifier {
+    inner: RustAda,
+}
+
+#[pymethods]
+impl AdaBoostClassifier {
+    #[new]
+    #[pyo3(signature = (
+        n_estimators = 50,
+        learning_rate = 1.0,
+        max_depth = 1,
+        random_state = 0
+    ))]
+    fn new(n_estimators: usize, learning_rate: f64, max_depth: usize, random_state: u64) -> Self {
+        let params = make_tree_params(Some(max_depth), 2, 1, None);
+        Self {
+            inner: RustAda::new(n_estimators, learning_rate, params, random_state),
+        }
+    }
+
+    fn fit<'py>(
+        mut slf: PyRefMut<'py, Self>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray1<'py, f64>,
+    ) -> PyResult<PyRefMut<'py, Self>> {
+        slf.inner
+            .fit(x.as_array(), y.as_array())
+            .map_err(to_py_err)?;
+        Ok(slf)
+    }
+
+    fn predict<'py>(
+        &self,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<Bound<'py, PyArray1<f64>>> {
+        Ok(self
+            .inner
+            .predict(x.as_array())
+            .map_err(to_py_err)?
+            .into_pyarray(py))
+    }
+
+    fn score(&self, x: PyReadonlyArray2<'_, f64>, y: PyReadonlyArray1<'_, f64>) -> PyResult<f64> {
+        let pred = self.inner.predict(x.as_array()).map_err(to_py_err)?;
+        Ok(accuracy(&pred, y.as_array()))
+    }
+    fn __repr__(&self) -> String {
+        "AdaBoostClassifier()".into()
     }
 }
