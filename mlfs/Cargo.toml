@@ -1,0 +1,38 @@
+[package]
+name = "mlfs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jan Schlegel"]
+description = "Machine Learning algorithms implemented from scratch in Rust, with a Python interface."
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "_mlfs"
+# cdylib -> Python extension module; rlib -> `cargo test` and Rust integration tests.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ndarray = { version = "0.16", features = ["approx"] }
+linfa-linalg = "0.2"
+ndarray-rand = "0.15"
+rand = "0.8"
+rand_distr = "0.4"
+numpy = "0.23"
+
+[dependencies.pyo3]
+version = "0.23"
+# extension-module is enabled only by maturin (see pyproject.toml). Leaving it
+# off for `cargo test` lets pyo3 link libpython so the test binary runs.
+features = []
+
+[features]
+default = []
+extension-module = ["pyo3/extension-module"]
+
+[dev-dependencies]
+approx = "0.5"
+
+[profile.release]
+opt-level = 3
+lto = "thin"

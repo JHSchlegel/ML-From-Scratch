@@ -1,0 +1,29 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "mlfs"
+version = "0.1.0"
+description = "Machine Learning algorithms from scratch in Rust, with a Python interface."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "Jan Schlegel" }]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["numpy>=1.20"]
+
+[project.optional-dependencies]
+# Extras used only by the showcase notebook, never by the library itself.
+notebook = ["matplotlib>=3.4", "scikit-learn>=1.0", "pandas>=1.3", "jupyter"]
+
+[tool.maturin]
+# Mixed Rust/Python project: pure-Python package lives in python/mlfs,
+# the compiled extension is placed at mlfs._mlfs.
+python-source = "python"
+module-name = "mlfs._mlfs"
+features = ["extension-module"]
